@@ -37,52 +37,67 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 export default {
   methods: {
-    //this method allows a new user to sign up the system. Once done, the user receives an email
-    //asking for account validation. Once the validation made the user is added to the system
+    // this method allows to release the connexion with the Google account
     async register() {
-      try { 
-        const { user, session, error } = await supabase.auth.signUp({ 
-          email: this.email, 
-          password: this.passwd, 
-        }); 
-        if (error) throw error; 
-        document.getElementById('status').innerHTML= "Please validate the received email !" 
-      } catch (error) { 
-        alert(error.error_description || error.message); 
-      }
-    },
-    //this method allows the already registred user to log in the system.
-    async login() {
-      try { 
-        const { user, session, error } = await supabase.auth.signIn({ 
-          email: this.email, 
+      try {
+        const { user, session, error } = await supabase.auth.signUp({
+          email: this.email,
           password: this.passwd,
-        }); 
-        if (error) throw error; 
-        document.getElementById('status').innerHTML='You are now logged !' 
-      } catch (error) { 
-        alert(error.error_description || error.message); 
+        });
+        if (error) throw error;
+        document.getElementById("status").innerHTML =
+          "Please validate the received email !";
+      } catch (error) {
+        alert(error.error_description  error.message);
       }
     },
-    async reset() {
-      const { data, error } = await supabase.auth.api.resetPasswordForEmail(
-        this.email
-      )
+    async logout() {
+      try {
+        const { user, session, error } = await supabase.auth.signOut();
+        if (error) throw error;
+        document.getElementById("status").innerHTML = "You are disconnected !";
+      } catch (error) {
+        alert(error.error_description  error.message);
+      }
+    },
+    // this method allows to log in the system using Google provider
+    async login() {
+      try {
+        const { user, session, error } = await supabase.auth.signIn({
+          provider: "google",
+        });
+        if (error) throw error;
+      } catch (error) {
+        alert(error.error_description  error.message);
+      }
+    },
+    async logingit() {
+      try {
+        const { user, session, error } = await supabase.auth.signIn({
+          provider: "github",
+        });
+        if (error) throw error;
+      } catch (error) {
+        alert(error.error_description  error.message);
+      }
     },
   },
+
   mounted() {
     supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event == 'PASSWORD_RECOVERY') {
-        const newPassword = prompt('What would you like your new password to be?')
+      if (event == "PASSWORD_RECOVERY") {
+        const newPassword = prompt(
+          "What would you like your new password to be?"
+        );
         const { data, error } = await supabase.auth.update({
           password: newPassword,
-        })
-        if (data) alert('Password updated successfully!')
-        if (error) alert('There was an error updating your password.')
+        });
+        if (data) alert("Password updated successfully!");
+        if (error) alert("There was an error updating your password.");
       }
-    })
-  }
-}
+    });
+  },
+};
 </script>
 
 <style>
