@@ -78,6 +78,8 @@ supabase.auth.onAuthStateChange((event, session) => {
       },
     },
 
+
+
     mounted() {
       supabase.auth.onAuthStateChange(async (event, session) => {
         if (event == "PASSWORD_RECOVERY") {
