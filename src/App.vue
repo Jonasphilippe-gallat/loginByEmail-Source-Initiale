@@ -48,7 +48,7 @@ export default {
         document.getElementById("status").innerHTML =
           "Please validate the received email !";
       } catch (error) {
-        alert(error.error_description  error.message);
+
       }
     },
     async logout() {
@@ -57,7 +57,7 @@ export default {
         if (error) throw error;
         document.getElementById("status").innerHTML = "You are disconnected !";
       } catch (error) {
-        alert(error.error_description  error.message);
+        alert(error.error_description || error.message);
       }
     },
     // this method allows to log in the system using Google provider
@@ -68,17 +68,7 @@ export default {
         });
         if (error) throw error;
       } catch (error) {
-        alert(error.error_description  error.message);
-      }
-    },
-    async logingit() {
-      try {
-        const { user, session, error } = await supabase.auth.signIn({
-          provider: "github",
-        });
-        if (error) throw error;
-      } catch (error) {
-        alert(error.error_description  error.message);
+        alert(error.error_description || error.message);
       }
     },
   },
