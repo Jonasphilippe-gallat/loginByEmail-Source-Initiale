@@ -68,30 +68,19 @@ export default {
 
   mounted() {
 
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (session == null) {
+        document.getElementById('status').innerHTML = 'You are not logged !!!';
+      } else {
+        //alert('session value: ' + JSON.stringify(session)) 
+        document.getElementById('status').innerHTML = 'You are logged with the email: ' + session.user.email;
+      };
+    })
+  }
+}
+  ;
 
-    supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event == "PASSWORD_RECOVERY") {
-        const newPassword = prompt(
-          "What would you like your new password to be?"
-        );
-        const { data, error } = await supabase.auth.update({
-          password: newPassword,
-        });
-        if (data) alert("Password updated successfully!");
-        if (error) alert("There was an error updating your password.");
-      }
-    });
-  },
-};
 
-supabase.auth.onAuthStateChange((event, session) => {
-  if (session == null) {
-    document.getElementById('status').innerHTML = 'You are not logged !!!';
-  } else {
-    //alert('session value: ' + JSON.stringify(session)) 
-    document.getElementById('status').innerHTML = 'You are logged with the email: ' + session.user.email;
-  };
-})
 
 </script>
 
