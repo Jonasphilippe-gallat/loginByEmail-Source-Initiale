@@ -9,15 +9,13 @@ import { SupabaseAuthClient } from '@supabase/supabase-js/dist/module/lib/Supaba
     <router-link to="/">Go to Home</router-link>
     <img alt="Logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
     <div class="wrapper" id="signOut">
-      <div>
+      <div class="loginlogout">
         <SignIn msg="User, please sign in !" />
+        <button class="login" v-on:click="login()">Login</button>
+        <button v-on:click="logout()">Logout</button>
       </div>
-      <label>email: </label><br>
-      <input type="email" required v-model="email" placeholder="username@domain.tld"><br>
-      <label>password: </label><br>
-      <input type="password" required v-model="passwd"><br>
-      <button v-on:click="login()">Login</button>
-      <button v-on:click="logout()">Logout</button>
+
+
 
     </div>
   </header>
@@ -32,73 +30,81 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 
+
+export default {
+
+
+
+
+
+  methods: {
+
+
+    // this method allows to release the connexion with the Google account
+
+    async logout() {
+      try {
+        const { user, session, error } = await supabase.auth.signOut();
+        if (error) throw error;
+        document.getElementById("status").innerHTML = "You are disconnected !";
+      } catch (error) {
+        alert(error.error_description || error.message);
+      }
+    },
+    // this method allows to log in the system using Google provider
+    async login() {
+      try {
+        const { user, session, error } = await supabase.auth.signIn({
+          provider: "google",
+        });
+        if (error) throw error;
+      } catch (error) {
+        alert(error.error_description || error.message);
+      }
+    },
+  },
+
+
+
+  mounted() {
+
+
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event == "PASSWORD_RECOVERY") {
+        const newPassword = prompt(
+          "What would you like your new password to be?"
+        );
+        const { data, error } = await supabase.auth.update({
+          password: newPassword,
+        });
+        if (data) alert("Password updated successfully!");
+        if (error) alert("There was an error updating your password.");
+      }
+    });
+  },
+};
+
 supabase.auth.onAuthStateChange((event, session) => {
   if (session == null) {
     document.getElementById('status').innerHTML = 'You are not logged !!!';
   } else {
     //alert('session value: ' + JSON.stringify(session)) 
     document.getElementById('status').innerHTML = 'You are logged with the email: ' + session.user.email;
-  }
-
-  export default {
-    methods: {
-      // this method allows to release the connexion with the Google account
-      async register() {
-        try {
-          const { user, session, error } = await supabase.auth.signUp({
-            email: this.email,
-            password: this.passwd,
-          });
-          if (error) throw error;
-          document.getElementById("status").innerHTML =
-            "Please validate the received email !";
-        } catch (error) {
-
-        }
-      },
-      async logout() {
-        try {
-          const { user, session, error } = await supabase.auth.signOut();
-          if (error) throw error;
-          document.getElementById("status").innerHTML = "You are disconnected !";
-        } catch (error) {
-          alert(error.error_description || error.message);
-        }
-      },
-      // this method allows to log in the system using Google provider
-      async login() {
-        try {
-          const { user, session, error } = await supabase.auth.signIn({
-            provider: "google",
-          });
-          if (error) throw error;
-        } catch (error) {
-          alert(error.error_description || error.message);
-        }
-      },
-    },
-
-
-
-    mounted() {
-      supabase.auth.onAuthStateChange(async (event, session) => {
-        if (event == "PASSWORD_RECOVERY") {
-          const newPassword = prompt(
-            "What would you like your new password to be?"
-          );
-          const { data, error } = await supabase.auth.update({
-            password: newPassword,
-          });
-          if (data) alert("Password updated successfully!");
-          if (error) alert("There was an error updating your password.");
-        }
-      });
-    },
   };
+})
+
 </script>
 
 <style>
 @import './assets/base.css';
+
+.loginlogout {
+  text-align: center;
+}
+
+.login {
+  margin-top: 50px;
+}
 
 header .hidden {
   visibility: hidden;
